@@ -1,0 +1,60 @@
+########################### **Set Up** ########################### 
+---
+title: "Main"
+output:       
+  bookdown::pdf_document2: default
+  bookdown::word_document2: default
+  bookdown::html_document2: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.retina = 3)
+```
+
+10:32
+```{r packages & functions}
+library(tidyverse)
+library(bookdown)
+sum_sq <- function(df, measure, group) {
+  df %>% group_by({{ group }}) %>% 
+    summarise(ss = sum(({{measure}} - mean({{measure}}))^2))
+}
+
+data_summary <- function(df, measure, group)  {
+  df %>% 
+   group_by({{ group }}) %>% 
+   summarise(mean_index = mean({{ measure }}),
+            n = length({{ measure }}),  sd = sd({{ measure }}), se = sd/sqrt(n))
+  }
+```
+
+########################### **Data Import** ###########################
+chaff <- read.delim("~/University/Year 3/Data Science/chaff/raw_data/chaff.txt") %>%
+  janitor::clean_names()
+View(chaff)sum_sq(chaff2, mass, sex)
+data_summary(chaff2, mass, sex)
+
+########################## **Data Tidying** ###########################
+chaff2 <- chaff %>% 
+  pivot_longer(names_to = "sex", 
+               values_to = "mass",
+               cols = c(1,2))
+               
+########################### **Data Analysis** ########################### 
+sum_sq(chaff2, mass, sex)
+chaffsummary <- data_summary(chaff2, mass, sex)
+
+########################### **Data Saving** ########################### 
+file <-  "Processed_data/chaff2.txt"
+write.table(chaff2, 
+            file, 
+            quote = FALSE,
+            row.names = FALSE)
+file <-  "Processed_data/chaffsummary.txt"
+write.table(chaffsummary, 
+            file, 
+            quote = FALSE,
+            row.names = FALSE)
